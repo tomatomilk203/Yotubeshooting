@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Shooting</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="src/utils/i18n.js"></script>
+</head>
+<body>
+  <div class="scanline"></div>
+  <div class="crt-overlay"></div>
+
+  <div class="container">
+    <!-- ヘッダー -->
+    <header class="header">
+      <div class="header-left">
+        <div class="youtube-icon">▶</div>
+        <div>
+          <h1 class="glitch" data-text="YOUTUBE SHOOTING">YOUTUBE SHOOTING</h1>
+          <div class="subtitle">// POWERED BY YOUTUBE API</div>
+        </div>
+      </div>
+      <div class="coin-display pixel-corners">
+        <span class="coin-icon">💎</span>
+        <span id="coin-count" class="coin-value">0</span>
+      </div>
+    </header>
+
+    <!-- 言語切り替え -->
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ja">JP</button>
+    </div>
+
+    <!-- タブナビゲーション -->
+    <nav class="tabs pixel-corners">
+      <button class="tab-btn active" data-tab="home">
+        <span class="tab-icon">⌂</span>
+        <span class="tab-label" data-i18n="tabHome">HOME</span>
+      </button>
+      <button class="tab-btn" data-tab="skins">
+        <span class="tab-icon">◆</span>
+        <span class="tab-label" data-i18n="tabSkins">SKINS</span>
+      </button>
+      <button class="tab-btn" data-tab="achievements">
+        <span class="tab-icon">★</span>
+        <span class="tab-label" data-i18n="tabAchievements">ACHIEVEMENTS</span>
+      </button>
+      <button class="tab-btn" data-tab="settings">
+        <span class="tab-icon">⚙</span>
+        <span class="tab-label" data-i18n="tabSettings">SETTINGS</span>
+      </button>
+    </nav>
+
+    <!-- タブコンテンツ -->
+    <div class="tab-content">
+      <!-- ホームタブ -->
+      <div class="tab-panel active" id="home">
+        <div class="terminal-text" data-i18n="homeWelcome">
+          > Transform YouTube comments into a bullet-hell shooting game!
+        </div>
+
+        <!-- ゲーム開始ボタン -->
+        <div class="game-start-section pixel-corners">
+          <button id="start-game-btn" class="cyber-btn large-btn">
+            <span class="btn-icon">▶</span>
+            <span data-i18n="gameStartButton">START GAME</span>
+          </button>
+          <p class="game-status" id="game-status" style="margin-top: 10px; font-size: 11px; color: rgba(0,245,255,0.7);"></p>
+
+          <!-- STARTボタン表示/非表示切り替え -->
+          <div class="start-toggle-section" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,245,255,0.3);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 11px;">
+              <input type="checkbox" id="hide-start-btn" style="width: 16px; height: 16px; accent-color: #00f5ff;">
+              <span data-i18n="hideStartButton">Hide START button on video</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="stats-section pixel-corners">
+          <h3 class="section-title" data-i18n="homeYourRecords">// YOUR RECORDS <button id="refresh-stats-btn" style="font-size: 10px; padding: 3px 8px; margin-left: 10px; cursor: pointer; background: rgba(0,245,255,0.2); border: 1px solid #00f5ff; color: #00f5ff; border-radius: 3px;">🔄</button></h3>
+          <div class="stat-grid">
+            <div class="stat-card pixel-corners">
+              <div class="stat-label" data-i18n="statBestScore">BEST_SCORE</div>
+              <div class="stat-value cyber-text" id="best-score">0</div>
+            </div>
+            <div class="stat-card pixel-corners">
+              <div class="stat-label" data-i18n="statTotalKills">TOTAL_KILLS</div>
+              <div class="stat-value cyber-text" id="total-kills">0</div>
+            </div>
+            <div class="stat-card pixel-corners">
+              <div class="stat-label" data-i18n="statTotalGames">TOTAL_GAMES</div>
+              <div class="stat-value cyber-text" id="total-games">0</div>
+            </div>
+            <div class="stat-card pixel-corners">
+              <div class="stat-label" data-i18n="statConsecutiveClears">STREAK</div>
+              <div class="stat-value cyber-text" id="consecutive-clears">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section pixel-corners">
+          <h3 class="section-title" data-i18n="homeHowToUseTitle">// HOW TO PLAY</h3>
+          <ul class="info-list">
+            <li data-i18n="homeHowToUse1">Open a YouTube video page</li>
+            <li data-i18n="homeHowToUse2">Click the "START" button</li>
+            <li data-i18n="homeHowToUse3">Select difficulty and play!</li>
+          </ul>
+
+          <h3 class="section-title" data-i18n="homeControlsTitle">// CONTROLS</h3>
+          <ul class="info-list">
+            <li><strong>MOUSE</strong>: Move cursor</li>
+            <li><strong>KEYBOARD</strong>: WASD / Arrow keys</li>
+            <li><strong>SHOOT</strong>: Auto-fire</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- スキンタブ -->
+      <div class="tab-panel" id="skins">
+        <h3 class="section-title" data-i18n="skinsTitle">// PLAYER SKINS</h3>
+        <p class="tab-description" data-i18n="skinsDescription">Customize your player appearance!</p>
+
+        <div id="skin-list" class="skin-list">
+          <!-- JavaScriptで動的に生成 -->
+        </div>
+      </div>
+
+      <!-- 実績タブ -->
+      <div class="tab-panel" id="achievements">
+        <h3 class="section-title" data-i18n="achievementsTitle">// ACHIEVEMENTS</h3>
+        <p class="tab-description" data-i18n="achievementsDescription">Complete achievements to earn rewards!</p>
+
+        <div id="achievement-list" class="achievement-list">
+          <!-- JavaScriptで動的に生成 -->
+        </div>
+      </div>
+
+      <!-- 設定タブ -->
+      <div class="tab-panel" id="settings">
+        <h3 class="section-title" data-i18n="settingsTitle">// SETTINGS</h3>
+
+        <div class="setting-item pixel-corners">
+          <label for="volume-slider" data-i18n="settingVolumeLabel">SE VOLUME</label>
+          <div class="volume-control">
+            <input type="range" id="volume-slider" min="0" max="100" value="33" class="cyber-slider">
+            <span id="volume-value" class="cyber-text">33%</span>
+          </div>
+        </div>
+
+        <div class="setting-item pixel-corners">
+          <button class="cyber-btn danger-btn" id="reset-data" data-i18n="settingResetButton">RESET ALL DATA</button>
+          <p class="warning-text" data-i18n="settingResetWarning">※ All data will be deleted</p>
+        </div>
+
+        <div class="version-info">
+          <p><span data-i18n="settingVersion">Version</span> 1.0.0</p>
+          <p data-i18n="settingHashtag">Share with #YoutubeShot!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

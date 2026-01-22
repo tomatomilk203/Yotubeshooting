@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Shooting - YouTubeコメントが弾幕になる！</title>
+  <meta name="description" content="YouTubeのコメントが弾幕シューティングゲームに変身！ブラウザ拡張機能で動画を見ながら遊べる新感覚ゲーム。">
+  <meta name="keywords" content="YouTube, 弾幕, シューティング, ゲーム, Chrome拡張機能, ブラウザゲーム, danmaku, shooting game">
+  <meta property="og:title" content="YouTube Shooting - コメント弾幕シューティング">
+  <meta property="og:description" content="YouTubeのコメントが弾幕になる！動画を見ながら遊べる新感覚シューティングゲーム。">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyber-pink: #ff006e;
+      --cyber-blue: #00f5ff;
+      --cyber-purple: #8b00ff;
+      --cyber-green: #00ff41;
+      --cyber-yellow: #ffed4e;
+      --cyber-red: #ff0000;
+      --youtube-red: #FF0000;
+      --dark-bg: #0a0e27;
+      --darker-bg: #050812;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DotGothic16', 'Courier New', monospace;
+      background: var(--darker-bg);
+      color: var(--cyber-blue);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* 言語切り替えボタン */
+    .lang-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      gap: 5px;
+    }
+
+    .lang-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      padding: 10px 15px;
+      background: transparent;
+      border: 2px solid var(--cyber-blue);
+      color: var(--cyber-blue);
+      cursor: pointer;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+
+    .lang-btn:hover {
+      background: rgba(0, 245, 255, 0.2);
+      box-shadow: 0 0 15px var(--cyber-blue);
+    }
+
+    .lang-btn.active {
+      background: var(--cyber-blue);
+      color: var(--darker-bg);
+      box-shadow: 0 0 20px var(--cyber-blue);
+    }
+
+    /* スキャンラインエフェクト */
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 50%,
+        rgba(0, 0, 0, 0.15) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: scanline 8s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+
+    /* グリッチエフェクト */
+    .glitch {
+      position: relative;
+      animation: glitch-skew 4s infinite linear alternate-reverse;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      animation: glitch1 2s infinite;
+      color: var(--cyber-pink);
+      z-index: -1;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+
+    .glitch::after {
+      animation: glitch2 2s infinite;
+      color: var(--cyber-green);
+      z-index: -2;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+
+    @keyframes glitch1 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+    }
+
+    @keyframes glitch2 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(3px, -3px); }
+      40% { transform: translate(3px, 3px); }
+      60% { transform: translate(-3px, -3px); }
+      80% { transform: translate(-3px, 3px); }
+    }
+
+    @keyframes glitch-skew {
+      0% { transform: skew(0deg); }
+      20% { transform: skew(0.5deg); }
+      40% { transform: skew(-0.5deg); }
+      60% { transform: skew(0.3deg); }
+      80% { transform: skew(-0.3deg); }
+      100% { transform: skew(0deg); }
+    }
+
+    /* ヒーローセクション */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(255, 0, 110, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 245, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139, 0, 255, 0.1) 0%, transparent 70%),
+        var(--darker-bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: grid-move 20s linear infinite;
+    }
+
+    @keyframes grid-move {
+      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+      100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+    }
+
+    .logo-container {
+      position: relative;
+      z-index: 10;
+      margin-bottom: 30px;
+    }
+
+    .youtube-icon {
+      width: 120px;
+      height: 120px;
+      background: var(--youtube-red);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      color: white;
+      box-shadow:
+        0 0 60px rgba(255, 0, 0, 0.6),
+        0 0 100px rgba(255, 0, 0, 0.4),
+        inset 0 0 30px rgba(255, 255, 255, 0.2);
+      animation: pulse-glow 2s ease-in-out infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow:
+          0 0 60px rgba(255, 0, 0, 0.6),
+          0 0 100px rgba(255, 0, 0, 0.4);
+      }
+      50% {
+        box-shadow:
+          0 0 80px rgba(255, 0, 0, 0.8),
+          0 0 120px rgba(255, 0, 0, 0.5);
+      }
+    }
+
+    .hero h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(24px, 5vw, 48px);
+      color: var(--cyber-blue);
+      text-shadow:
+        0 0 10px var(--cyber-blue),
+        0 0 30px var(--cyber-blue),
+        0 0 50px var(--cyber-blue),
+        4px 4px 0 var(--youtube-red);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero .subtitle {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(10px, 2vw, 14px);
+      color: var(--cyber-green);
+      letter-spacing: 4px;
+      margin-bottom: 30px;
+      text-shadow: 0 0 20px var(--cyber-green);
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-description {
+      font-size: clamp(14px, 2.5vw, 18px);
+      max-width: 700px;
+      margin-bottom: 40px;
+      color: rgba(255, 255, 255, 0.9);
+      position: relative;
+      z-index: 10;
+      line-height: 2;
+    }
+
+    .hero-description span {
+      color: var(--cyber-yellow);
+      font-weight: bold;
+    }
+
+    /* CTAボタン */
+    .cta-button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(12px, 2vw, 16px);
+      padding: 20px 50px;
+      background: linear-gradient(135deg, var(--youtube-red) 0%, #cc0000 100%);
+      color: white;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 10;
+      clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+      box-shadow:
+        0 0 30px rgba(255, 0, 0, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+      animation: button-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes button-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .cta-button:hover {
+      transform: scale(1.08) !important;
+      box-shadow:
+        0 0 50px rgba(255, 0, 0, 0.8),
+        0 0 80px rgba(255, 0, 0, 0.5),
+        inset 0 0 30px rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .cta-button .icon {
+      font-size: 24px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* セクション共通 */
+    section {
+      padding: 100px 20px;
+      position: relative;
+    }
+
+    .section-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(16px, 3vw, 24px);
+      text-align: center;
+      margin-bottom: 60px;
+      color: var(--cyber-pink);
+      text-shadow: 0 0 20px var(--cyber-pink);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 特徴セクション */
+    .features {
+      background: linear-gradient(180deg, var(--darker-bg) 0%, var(--dark-bg) 50%, var(--darker-bg) 100%);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: rgba(0, 245, 255, 0.05);
+      border: 2px solid var(--cyber-blue);
+      padding: 40px 30px;
+      text-align: center;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyber-pink);
+      box-shadow: 0 0 40px rgba(255, 0, 110, 0.3);
+      transform: translateY(-10px);
+    }
+
+    .feature-icon {
+      font-size: 50px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      color: var(--cyber-yellow);
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px var(--cyber-yellow);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+    }
+
+    /* ゲームプレイセクション */
+    .gameplay {
+      background: var(--darker-bg);
+    }
+
+    .gameplay-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 50px;
+      align-items: center;
+    }
+
+    .gameplay-text h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--cyber-green);
+      margin-bottom: 20px;
+    }
+
+    .gameplay-text p {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 15px;
+      line-height: 2;
+    }
+
+    .gameplay-text ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .gameplay-text li {
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .gameplay-text li::before {
+      content: '▶';
+      position: absolute;
+      left: 0;
+      color: var(--cyber-pink);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .gameplay-visual {
+      background: rgba(0, 0, 0, 0.5);
+      border: 3px solid var(--youtube-red);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+    }
+
+    .gameplay-visual img {
+      max-width: 100%;
+      border: 2px solid var(--cyber-blue);
+    }
+
+    .placeholder-screen {
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+      padding: 60px 20px;
+      color: var(--cyber-blue);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .placeholder-screen .score {
+      color: var(--cyber-yellow);
+      font-size: 24px;
+      text-shadow: 0 0 20px var(--cyber-yellow);
+    }
+
+    .placeholder-screen .comments {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .placeholder-screen .comment {
+      animation: float-left 3s linear infinite;
+      white-space: nowrap;
+    }
+
+    .placeholder-screen .comment:nth-child(1) { color: #ffffff; animation-delay: 0s; }
+    .placeholder-screen .comment:nth-child(2) { color: #00ff00; animation-delay: 0.5s; }
+    .placeholder-screen .comment:nth-child(3) { color: #ff00ff; animation-delay: 1s; }
+    .placeholder-screen .comment:nth-child(4) { color: #ff0000; font-size: 16px; animation-delay: 1.5s; }
+
+    @keyframes float-left {
+      0% { transform: translateX(100%); opacity: 1; }
+      100% { transform: translateX(-100%); opacity: 0.5; }
+    }
+
+    /* 難易度セクション */
+    .difficulty {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+    }
+
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .difficulty-card {
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid;
+      padding: 30px 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .difficulty-card.easy { border-color: var(--cyber-green); }
+    .difficulty-card.normal { border-color: var(--cyber-blue); }
+    .difficulty-card.hard { border-color: var(--cyber-yellow); }
+    .difficulty-card.hell { border-color: var(--cyber-red); box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); }
+
+    .difficulty-card:hover {
+      transform: scale(1.05);
+    }
+
+    .difficulty-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .difficulty-card.easy .difficulty-name { color: var(--cyber-green); text-shadow: 0 0 10px var(--cyber-green); }
+    .difficulty-card.normal .difficulty-name { color: var(--cyber-blue); text-shadow: 0 0 10px var(--cyber-blue); }
+    .difficulty-card.hard .difficulty-name { color: var(--cyber-yellow); text-shadow: 0 0 10px var(--cyber-yellow); }
+    .difficulty-card.hell .difficulty-name { color: var(--cyber-red); text-shadow: 0 0 10px var(--cyber-red); }
+
+    .difficulty-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+    }
+
+    /* 実績セクション */
+    .achievements {
+      background: var(--darker-bg);
+    }
+
+    .achievement-showcase {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .achievement-item {
+      background: rgba(255, 237, 78, 0.05);
+      border: 2px solid var(--cyber-yellow);
+      padding: 20px;
+      width: 140px;
+      text-align: center;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+
+    .achievement-item:hover {
+      box-shadow: 0 0 30px rgba(255, 237, 78, 0.4);
+      transform: scale(1.1);
+    }
+
+    .achievement-item .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 15px;
+      border: 2px solid var(--cyber-blue);
+      background: var(--dark-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .achievement-item .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .achievement-item .name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--cyber-yellow);
+      text-shadow: 0 0 5px var(--cyber-yellow);
+      line-height: 1.5;
+    }
+
+    /* 最終CTA */
+    .final-cta {
+      background:
+        radial-gradient(ellipse at center, rgba(255, 0, 0, 0.2) 0%, transparent 70%),
+        var(--dark-bg);
+      text-align: center;
+      padding: 120px 20px;
+    }
+
+    .final-cta h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(14px, 3vw, 20px);
+      color: var(--cyber-blue);
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px var(--cyber-blue);
+    }
+
+    .final-cta p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 40px;
+    }
+
+    /* フッター */
+    footer {
+      background: var(--darker-bg);
+      border-top: 2px solid var(--cyber-blue);
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 12px;
+      color: rgba(0, 245, 255, 0.5);
+      margin-bottom: 10px;
+    }
+
+    footer a {
+      color: var(--cyber-pink);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-shadow: 0 0 10px var(--cyber-pink);
+    }
+
+    .version {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--cyber-green);
+    }
+
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 60px 15px;
+      }
+
+      .youtube-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+      }
+
+      .cta-button {
+        padding: 15px 30px;
+        font-size: 10px;
+      }
+
+      section {
+        padding: 60px 15px;
+      }
+
+      .feature-card {
+        padding: 30px 20px;
+      }
+
+      .difficulty-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .lang-switcher {
+        top: 10px;
+        right: 10px;
+      }
+
+      .lang-btn {
+        padding: 8px 10px;
+        font-size: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+
+  <!-- 言語切り替え -->
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="ja">日本語</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+
+  <!-- ヒーローセクション -->
+  <section class="hero">
+    <div class="logo-container">
+      <div class="youtube-icon">▶</div>
+      <h1 class="glitch" data-text="YouTube Shooting">YouTube Shooting</h1>
+      <p class="subtitle">COMMENT DANMAKU GAME</p>
+    </div>
+    <p class="hero-description">
+      <span class="i18n" data-ja="YouTubeのコメントが" data-en="YouTube comments become">YouTubeのコメントが</span><span><span class="i18n" data-ja="弾幕" data-en="danmaku">弾幕</span></span><span class="i18n" data-ja="になる！" data-en="!">になる！</span><br>
+      <span class="i18n" data-ja="動画を見ながら遊べる" data-en="A">動画を見ながら遊べる</span><span><span class="i18n" data-ja="新感覚シューティングゲーム" data-en="new shooting game experience while watching videos">新感覚シューティングゲーム</span></span><span class="i18n" data-ja="。" data-en=".">。</span><br>
+      <span class="i18n" data-ja="実際のコメントがリアルタイムで襲いかかる！" data-en="Real comments attack you in real-time!">実際のコメントがリアルタイムで襲いかかる！</span>
+    </p>
+    <a href="https://chromewebstore.google.com/detail/mdndofnojmpkmglofeioeikbgpjbphka?utm_source=item-share-cb" class="cta-button" target="_blank">
+      <span class="icon">🎮</span>
+      <span class="i18n" data-ja="無料でダウンロード" data-en="Free Download">無料でダウンロード</span>
+    </a>
+  </section>
+
+  <!-- 特徴セクション -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">FEATURES</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">💬</span>
+          <h3 class="feature-title i18n" data-ja="リアルコメント" data-en="Real Comments">リアルコメント</h3>
+          <p class="feature-desc i18n" data-ja="実際のYouTubeコメントが弾幕として出現。ポジティブ・ネガティブで色が変わる！" data-en="Actual YouTube comments appear as danmaku. Colors change based on positive/negative sentiment!">実際のYouTubeコメントが弾幕として出現。ポジティブ・ネガティブで色が変わる！</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎯</span>
+          <h3 class="feature-title i18n" data-ja="4つの難易度" data-en="4 Difficulties">4つの難易度</h3>
+          <p class="feature-desc i18n" data-ja="EASY〜HELLまで。HELL難易度では弾幕がプレイヤーを追尾！" data-en="From EASY to HELL. In HELL mode, bullets track the player!">EASY〜HELLまで。HELL難易度では弾幕がプレイヤーを追尾！</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🏆</span>
+          <h3 class="feature-title i18n" data-ja="19種の実績" data-en="19 Achievements">19種の実績</h3>
+          <p class="feature-desc i18n" data-ja="スコア・キル数・連続クリアなど多彩な実績をアンロック！" data-en="Unlock various achievements: scores, kills, consecutive clears and more!">スコア・キル数・連続クリアなど多彩な実績をアンロック！</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">👾</span>
+          <h3 class="feature-title i18n" data-ja="ボス戦" data-en="Boss Battles">ボス戦</h3>
+          <p class="feature-desc i18n" data-ja="長文コメントが巨大ボスに変身。倒せば25万点ゲット！" data-en="Long comments transform into giant bosses. Defeat them for 250,000 points!">長文コメントが巨大ボスに変身。倒せば25万点ゲット！</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎨</span>
+          <h3 class="feature-title i18n" data-ja="スキン" data-en="Skins">スキン</h3>
+          <p class="feature-desc i18n" data-ja="コインを集めて機体スキンをアンロック。見た目をカスタマイズ！" data-en="Collect coins to unlock ship skins. Customize your look!">コインを集めて機体スキンをアンロック。見た目をカスタマイズ！</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🌐</span>
+          <h3 class="feature-title i18n" data-ja="日英対応" data-en="JP/EN Support">日英対応</h3>
+          <p class="feature-desc i18n" data-ja="日本語・英語の両言語に完全対応。いつでも切り替え可能。" data-en="Full support for Japanese and English. Switch anytime.">日本語・英語の両言語に完全対応。いつでも切り替え可能。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ゲームプレイセクション -->
+  <section class="gameplay">
+    <div class="container">
+      <h2 class="section-title">HOW TO PLAY</h2>
+      <div class="gameplay-content">
+        <div class="gameplay-text">
+          <h3 class="i18n" data-ja="▸ シンプル操作" data-en="▸ Simple Controls">▸ シンプル操作</h3>
+          <p class="i18n" data-ja="マウスで自機を操作、クリックでショット。キーボードでも操作可能。" data-en="Move with mouse, click to shoot. Keyboard controls also available.">マウスで自機を操作、クリックでショット。キーボードでも操作可能。</p>
+          <ul>
+            <li class="i18n" data-ja="白コメント：通常の敵" data-en="White comments: Normal enemies">白コメント：通常の敵</li>
+            <li class="i18n" data-ja="緑コメント：ポジティブ、柔らかい" data-en="Green comments: Positive, softer">緑コメント：ポジティブ、柔らかい</li>
+            <li class="i18n" data-ja="紫コメント：レアエネミー、高得点" data-en="Purple comments: Rare enemy, high score">紫コメント：レアエネミー、高得点</li>
+            <li class="i18n" data-ja="赤コメント：ボス、HPバー表示" data-en="Red comments: Boss, HP bar displayed">赤コメント：ボス、HPバー表示</li>
+            <li class="i18n" data-ja="灰コメント：無敵、避けるしかない" data-en="Gray comments: Invincible, must dodge">灰コメント：無敵、避けるしかない</li>
+          </ul>
+        </div>
+        <div class="gameplay-visual">
+          <div class="placeholder-screen">
+            <div class="score">SCORE: 125,000</div>
+            <div class="comments">
+              <div class="comment i18n" data-ja="すごい動画だね！" data-en="Great video!">すごい動画だね！</div>
+              <div class="comment i18n" data-ja="面白い！" data-en="Interesting!">面白い！</div>
+              <div class="comment i18n" data-ja="★レアコメント★" data-en="★Rare Comment★">★レアコメント★</div>
+              <div class="comment i18n" data-ja="【BOSS】長文コメントが出現..." data-en="【BOSS】Long comment appears...">【BOSS】長文コメントが出現...</div>
+            </div>
+            <div style="color: var(--cyber-green);">♡♡♡ COMBO x15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 難易度セクション -->
+  <section class="difficulty">
+    <div class="container">
+      <h2 class="section-title">DIFFICULTY</h2>
+      <div class="difficulty-grid">
+        <div class="difficulty-card easy">
+          <h3 class="difficulty-name">EASY</h3>
+          <p class="difficulty-desc i18n" data-ja="初心者向け<br>ゆっくり弾幕<br>スコア×1倍" data-en="For beginners<br>Slow bullets<br>Score ×1">初心者向け<br>ゆっくり弾幕<br>スコア×1倍</p>
+        </div>
+        <div class="difficulty-card normal">
+          <h3 class="difficulty-name">NORMAL</h3>
+          <p class="difficulty-desc i18n" data-ja="標準難易度<br>適度な挑戦<br>スコア×2倍" data-en="Standard<br>Moderate challenge<br>Score ×2">標準難易度<br>適度な挑戦<br>スコア×2倍</p>
+        </div>
+        <div class="difficulty-card hard">
+          <h3 class="difficulty-name">HARD</h3>
+          <p class="difficulty-desc i18n" data-ja="上級者向け<br>高速弾幕<br>スコア×3倍" data-en="For experts<br>Fast bullets<br>Score ×3">上級者向け<br>高速弾幕<br>スコア×3倍</p>
+        </div>
+        <div class="difficulty-card hell">
+          <h3 class="difficulty-name">HELL</h3>
+          <p class="difficulty-desc i18n" data-ja="地獄モード<br>追尾弾幕<br>ネガティブのみ" data-en="Hell mode<br>Tracking bullets<br>Negative only">地獄モード<br>追尾弾幕<br>ネガティブのみ</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 実績セクション -->
+  <section class="achievements">
+    <div class="container">
+      <h2 class="section-title">ACHIEVEMENTS</h2>
+      <div class="achievement-showcase">
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/score_10000.png" alt="Score Master"></div>
+          <div class="name i18n" data-ja="スコアマスター" data-en="Score Master">スコアマスター</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/score_50000.png" alt="Score Legend"></div>
+          <div class="name i18n" data-ja="スコアレジェンド" data-en="Score Legend">スコアレジェンド</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/score_300000.png" alt="Golden Manner"></div>
+          <div class="name i18n" data-ja="黄金のマナー" data-en="Golden Manner">黄金のマナー</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/kills_1000.png" alt="Enemy Slayer"></div>
+          <div class="name i18n" data-ja="エネミースレイヤー" data-en="Enemy Slayer">エネミースレイヤー</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/kills_5000.png" alt="Enemy Destroyer"></div>
+          <div class="name i18n" data-ja="エネミーデストロイヤー" data-en="Enemy Destroyer">エネミーデストロイヤー</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/kills_10000.png" alt="Lonely Night"></div>
+          <div class="name i18n" data-ja="孤独な夜を超えて" data-en="Beyond Lonely Night">孤独な夜を超えて</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/clear_easy.png" alt="Easy Clear"></div>
+          <div class="name i18n" data-ja="イージー制覇" data-en="Easy Conqueror">イージー制覇</div>
+        </div>
+        <div class="achievement-item">
+          <div class="icon"><img src="assets/achievements/clear_normal.png" alt="Normal Clear"></div>
+          <div class="name i18n" data-ja="ノーマル制覇" data-en="Normal Conqueror">ノーマル制覇</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最終CTA -->
+  <section class="final-cta">
+    <h2 class="i18n" data-ja="READY TO PLAY?" data-en="READY TO PLAY?">READY TO PLAY?</h2>
+    <p class="i18n" data-ja="YouTubeを開いて、弾幕の嵐に飛び込もう！" data-en="Open YouTube and dive into the bullet storm!">YouTubeを開いて、弾幕の嵐に飛び込もう！</p>
+    <a href="https://chromewebstore.google.com/detail/mdndofnojmpkmglofeioeikbgpjbphka?utm_source=item-share-cb" class="cta-button" target="_blank">
+      <span class="icon">⬇️</span>
+      <span class="i18n" data-ja="Chrome拡張機能をインストール" data-en="Install Chrome Extension">Chrome拡張機能をインストール</span>
+    </a>
+  </section>
+
+  <!-- フッター -->
+  <footer>
+    <p class="version">v1.0.0</p>
+    <p>YouTube Shooting - Comment Danmaku Game</p>
+    <p><a href="https://github.com/tomatomilk203/Yotubeshooting" target="_blank">GitHub</a></p>
+    <p style="margin-top: 20px; font-size: 10px; color: rgba(255,255,255,0.3);">
+      This extension is not affiliated with YouTube or Google.
+    </p>
+  </footer>
+
+  <script>
+    // 言語切り替え機能
+    const langBtns = document.querySelectorAll('.lang-btn');
+    let currentLang = 'ja';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+
+      // ボタンのアクティブ状態を更新
+      langBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      // テキストを切り替え
+      document.querySelectorAll('.i18n').forEach(el => {
+        const text = el.dataset[lang];
+        if (text) {
+          el.innerHTML = text;
+        }
+      });
+
+      // ローカルストレージに保存
+      localStorage.setItem('yt_shooting_landing_lang', lang);
+    }
+
+    // イベントリスナー
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLanguage(btn.dataset.lang);
+      });
+    });
+
+    // 初期言語の設定（保存されていれば復元、なければブラウザ言語）
+    const savedLang = localStorage.getItem('yt_shooting_landing_lang');
+    if (savedLang) {
+      setLanguage(savedLang);
+    } else {
+      const browserLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
+      setLanguage(browserLang);
+    }
+
+    // パララックス効果
+    document.addEventListener('mousemove', (e) => {
+      const hero = document.querySelector('.hero');
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      hero.style.backgroundPosition = `${50 + x * 0.5}% ${50 + y * 0.5}%`;
+    });
+
+    // スクロールアニメーション
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-card, .difficulty-card, .achievement-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'all 0.6s ease-out';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

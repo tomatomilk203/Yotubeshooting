@@ -1,0 +1,747 @@
+/* ========================================
+   サイバーパンク × 16bit レトロデザイン
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --cyber-pink: #ff006e;
+  --cyber-blue: #00f5ff;
+  --cyber-purple: #8b00ff;
+  --cyber-green: #00ff41;
+  --cyber-yellow: #ffed4e;
+  --cyber-red: #ff0000;
+  --youtube-red: #FF0000;
+  --dark-bg: #0a0e27;
+  --darker-bg: #050812;
+  --grid-color: rgba(0, 245, 255, 0.1);
+}
+
+body {
+  width: 420px;
+  min-height: 600px;
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  background: var(--darker-bg);
+  color: var(--cyber-blue);
+  overflow-x: hidden;
+  position: relative;
+  image-rendering: pixelated;
+}
+
+/* ========================================
+   CRT/ブラウン管エフェクト
+   ======================================== */
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+}
+
+/* ========================================
+   ピクセルコーナー（16bit風）
+   ======================================== */
+.pixel-corners {
+  position: relative;
+  clip-path: polygon(
+    0 8px, 8px 8px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+  );
+}
+
+/* ========================================
+   ヘッダー
+   ======================================== */
+.header {
+  background: linear-gradient(180deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--youtube-red);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.youtube-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--youtube-red);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.header-left h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: var(--cyber-blue);
+  text-shadow:
+    0 0 10px var(--cyber-blue),
+    0 0 20px var(--cyber-blue),
+    2px 2px 0 var(--youtube-red);
+  margin-bottom: 5px;
+  position: relative;
+}
+
+/* グリッチエフェクト */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch::before {
+  animation: glitch1 2s infinite;
+  color: var(--cyber-pink);
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch2 2s infinite;
+  color: var(--cyber-green);
+  z-index: -2;
+}
+
+@keyframes glitch1 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch2 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(2px, -2px); }
+  40% { transform: translate(2px, 2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(-2px, 2px); }
+}
+
+.subtitle {
+  font-size: 9px;
+  color: var(--cyber-green);
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.coin-display {
+  background: var(--dark-bg);
+  padding: 10px 15px;
+  border: 2px solid var(--cyber-yellow);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 15px rgba(255, 237, 78, 0.4), inset 0 0 10px rgba(255, 237, 78, 0.1);
+}
+
+.coin-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 0 5px var(--cyber-yellow));
+}
+
+.coin-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--cyber-yellow);
+  text-shadow: 0 0 10px var(--cyber-yellow);
+}
+
+/* ========================================
+   言語切り替え
+   ======================================== */
+.lang-switcher {
+  display: flex;
+  gap: 5px;
+  padding: 10px 20px;
+  background: rgba(0, 245, 255, 0.05);
+  border-bottom: 1px solid var(--cyber-blue);
+}
+
+.lang-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--cyber-blue);
+  color: var(--cyber-blue);
+  cursor: pointer;
+  transition: all 0.3s;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
+.lang-btn:hover {
+  background: rgba(0, 245, 255, 0.2);
+  box-shadow: 0 0 10px var(--cyber-blue);
+}
+
+.lang-btn.active {
+  background: var(--cyber-blue);
+  color: var(--darker-bg);
+  box-shadow: 0 0 15px var(--cyber-blue);
+}
+
+/* ========================================
+   タブナビゲーション
+   ======================================== */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: var(--grid-color);
+  padding: 2px;
+  margin: 0;
+}
+
+.tab-btn {
+  padding: 15px 10px;
+  background: var(--dark-bg);
+  border: none;
+  color: rgba(0, 245, 255, 0.6);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+.tab-icon {
+  font-size: 16px;
+  display: block;
+}
+
+.tab-btn:hover {
+  background: rgba(0, 245, 255, 0.1);
+  color: var(--cyber-blue);
+  box-shadow: inset 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+.tab-btn.active {
+  background: rgba(0, 245, 255, 0.2);
+  color: var(--cyber-blue);
+  box-shadow:
+    inset 0 0 20px rgba(0, 245, 255, 0.3),
+    0 0 20px rgba(0, 245, 255, 0.4);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--youtube-red);
+  box-shadow: 0 0 15px var(--youtube-red);
+}
+
+/* ========================================
+   タブコンテンツ
+   ======================================== */
+.tab-content {
+  background: var(--darker-bg);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tab-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background: var(--cyber-blue);
+  box-shadow: 0 0 10px var(--cyber-blue);
+}
+
+.tab-panel {
+  display: none;
+  padding: 20px;
+  animation: pixelFadeIn 0.3s steps(10);
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes pixelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  margin-bottom: 15px;
+  color: var(--cyber-pink);
+  text-shadow: 0 0 10px var(--cyber-pink);
+  letter-spacing: 2px;
+}
+
+.tab-description {
+  font-size: 11px;
+  color: rgba(0, 245, 255, 0.7);
+  margin-bottom: 15px;
+  font-family: 'DotGothic16', 'Courier New', monospace;
+}
+
+/* ========================================
+   ホームタブ
+   ======================================== */
+.terminal-text {
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--cyber-green);
+  background: rgba(0, 255, 65, 0.05);
+  padding: 15px;
+  border-left: 3px solid var(--cyber-green);
+  margin-bottom: 20px;
+  line-height: 1.6;
+  animation: typewriter 2s steps(60);
+}
+
+@keyframes typewriter {
+  from { width: 0; overflow: hidden; }
+  to { width: 100%; overflow: visible; }
+}
+
+/* ========================================
+   ゲーム開始セクション
+   ======================================== */
+.game-start-section {
+  background: rgba(255, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 2px solid var(--youtube-red);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+}
+
+.large-btn {
+  font-size: 14px !important;
+  padding: 18px 40px !important;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--youtube-red) 0%, #cc0000 100%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.large-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.large-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.large-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 20px;
+  animation: pulse-icon 2s infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.game-status {
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  text-align: center;
+}
+
+.stats-section {
+  background: rgba(255, 0, 0, 0.05);
+  padding: 15px;
+  border: 2px solid var(--youtube-red);
+  margin-bottom: 15px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stat-card {
+  background: var(--dark-bg);
+  padding: 15px;
+  border: 1px solid var(--youtube-red);
+  text-align: center;
+  box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: rgba(0, 245, 255, 0.7);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+}
+
+.cyber-text {
+  color: var(--cyber-yellow);
+  text-shadow: 0 0 10px var(--cyber-yellow), 0 0 20px var(--cyber-yellow);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.info-section {
+  background: rgba(255, 0, 110, 0.05);
+  padding: 15px;
+  border: 2px solid var(--cyber-pink);
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.info-list li {
+  font-size: 12px;
+  padding: 8px 0;
+  padding-left: 20px;
+  position: relative;
+  color: rgba(0, 245, 255, 1);
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+.info-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 5px;
+  color: var(--cyber-pink);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ========================================
+   スキン・実績カード
+   ======================================== */
+.skin-list,
+.achievement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skin-card,
+.achievement-card {
+  background: rgba(0, 245, 255, 0.05);
+  border: 2px solid var(--cyber-blue);
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.skin-card:hover,
+.achievement-card:hover {
+  border-color: var(--cyber-pink);
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+  transform: translateX(5px);
+}
+
+.skin-card.unlocked,
+.achievement-card.unlocked {
+  border-color: var(--cyber-yellow);
+  background: rgba(255, 237, 78, 0.05);
+  box-shadow: 0 0 15px rgba(255, 237, 78, 0.2);
+}
+
+.skin-preview,
+.achievement-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--dark-bg);
+  border: 2px solid var(--cyber-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 30px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.achievement-card.unlocked .achievement-icon {
+  filter: none;
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.skin-name,
+.achievement-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 15px;
+  color: var(--cyber-yellow);
+  text-shadow: 0 0 8px var(--cyber-yellow), 0 0 15px rgba(255, 237, 78, 0.5);
+  margin-bottom: 8px;
+}
+
+.skin-desc,
+.achievement-desc {
+  font-size: 11px;
+  color: rgba(0, 245, 255, 0.95);
+  margin-bottom: 8px;
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  line-height: 1.5;
+}
+
+/* スキンステータスバッジ */
+.skin-status-badge {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.skin-status-badge.equipped {
+  background: rgba(0, 255, 65, 0.2);
+  color: #00ff41;
+  border: 2px solid #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.skin-status-badge.unlocked {
+  background: rgba(255, 237, 78, 0.2);
+  color: #ffed4e;
+  border: 2px solid #ffed4e;
+  box-shadow: 0 0 10px rgba(255, 237, 78, 0.3);
+}
+
+/* スキン解除方法の大きな表示 */
+.skin-unlock-info {
+  background: rgba(0, 245, 255, 0.1);
+  border: 2px solid rgba(0, 245, 255, 0.5);
+  padding: 12px;
+  margin-top: 10px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.unlock-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--cyber-pink);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.unlock-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unlock-method {
+  font-family: 'DotGothic16', 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--cyber-yellow);
+  background: rgba(255, 237, 78, 0.1);
+  padding: 8px 12px;
+  border-left: 3px solid var(--cyber-yellow);
+  text-shadow: 0 0 5px var(--cyber-yellow);
+}
+
+.cyber-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 10px 15px;
+  background: var(--cyber-blue);
+  color: var(--darker-bg);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 15px var(--cyber-blue);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.cyber-btn:hover {
+  background: var(--cyber-pink);
+  box-shadow: 0 0 25px var(--cyber-pink);
+  transform: scale(1.05);
+}
+
+.cyber-btn:disabled {
+  background: rgba(0, 245, 255, 0.2);
+  color: rgba(0, 245, 255, 0.5);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.danger-btn {
+  background: var(--cyber-red);
+  box-shadow: 0 0 15px var(--cyber-red);
+}
+
+.danger-btn:hover {
+  background: var(--cyber-pink);
+  box-shadow: 0 0 25px var(--cyber-pink);
+}
+
+/* ========================================
+   設定
+   ======================================== */
+.setting-item {
+  background: rgba(0, 245, 255, 0.05);
+  padding: 15px;
+  border: 2px solid var(--cyber-blue);
+  margin-bottom: 15px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.cyber-slider {
+  flex: 1;
+  height: 4px;
+  background: rgba(0, 245, 255, 0.2);
+  outline: none;
+  appearance: none;
+}
+
+.cyber-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--cyber-blue);
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--cyber-blue);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.warning-text {
+  font-size: 9px;
+  color: rgba(255, 0, 110, 0.7);
+  margin-top: 10px;
+  text-align: center;
+}
+
+.version-info {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--cyber-blue);
+  font-family: 'DotGothic16', 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(0, 245, 255, 0.5);
+}
+
+.version-info p {
+  margin: 5px 0;
+}

@@ -1,0 +1,665 @@
+/**
+ * YouTube Shooting - Cyberpunk × 16bit Retro Style
+ * サイバーパンク × レトロゲーム風デザイン
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ========================================
+   CSS Variables
+   ======================================== */
+:root {
+  --youtube-red: #FF0000;
+  --cyber-blue: #00f5ff;
+  --cyber-pink: #ff006e;
+  --cyber-yellow: #ffff00;
+  --dark-bg: #0a0e27;
+  --neon-green: #00ff00;
+  --neon-gold: #ffd700;
+}
+
+/* ========================================
+   メインコンテナ
+   ======================================== */
+#yt-shooting-ui {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  font-family: 'Courier New', monospace;
+}
+
+/* ========================================
+   ピクセルコーナー（16bit風）
+   ======================================== */
+.pixel-corners {
+  clip-path: polygon(
+    0 8px, 8px 8px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+  );
+}
+
+/* ========================================
+   統計パネル（左上）- シンプルテキスト表示
+   ======================================== */
+.yt-shooting-stats {
+  /* インラインスタイルで上書き - CSSは最小限 */
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  animation: none !important;
+  padding: 0 !important;
+}
+
+/* ライフパネル（右上）- シンプル表示 */
+.yt-shooting-lives-panel {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  padding: 0 !important;
+}
+
+.coins-earned {
+  color: var(--neon-gold);
+  font-size: 18px;
+  font-weight: bold;
+  margin: 15px 0;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 1);
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* ========================================
+   ボスカウント（右下）
+   ======================================== */
+.yt-shooting-boss-count {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.95) 0%, rgba(75, 0, 130, 0.95) 100%);
+  padding: 12px 18px;
+  color: white;
+  font-weight: bold;
+  pointer-events: auto;
+  border: 3px solid #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+  clip-path: polygon(
+    0 8px, 8px 8px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+  );
+  font-family: 'Press Start 2P', monospace;
+}
+
+.boss-count-text {
+  font-size: 10px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.boss-count-text span {
+  color: var(--cyber-yellow);
+  font-size: 14px;
+  margin-left: 8px;
+  text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+}
+
+/* ========================================
+   コントロールパネル - YouTube Red Theme
+   ======================================== */
+.yt-shooting-controls {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.yt-shooting-btn {
+  background: linear-gradient(135deg, var(--youtube-red) 0%, #cc0000 100%);
+  color: white;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  padding: 14px 28px;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Press Start 2P', monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0,
+    calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+}
+
+.yt-shooting-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.yt-shooting-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(255, 0, 0, 0.5);
+}
+
+/* ========================================
+   難易度選択パネル - サイバーパンクデザイン
+   ======================================== */
+.yt-shooting-difficulty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 0, 40, 0.95) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 10000;
+}
+
+/* CRTスキャンライン効果 */
+.yt-shooting-difficulty::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
+  }
+}
+
+.difficulty-content {
+  text-align: center;
+  padding: 50px 60px;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%);
+  border: 4px solid var(--youtube-red);
+  box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), inset 0 0 40px rgba(255, 0, 0, 0.1);
+  clip-path: polygon(
+    0 20px, 20px 20px, 20px 0,
+    calc(100% - 20px) 0, calc(100% - 20px) 20px, 100% 20px,
+    100% calc(100% - 20px), calc(100% - 20px) calc(100% - 20px), calc(100% - 20px) 100%,
+    20px 100%, 20px calc(100% - 20px), 0 calc(100% - 20px)
+  );
+}
+
+.difficulty-content h2 {
+  color: #fff;
+  font-size: 24px;
+  font-family: 'Press Start 2P', monospace;
+  margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  letter-spacing: 2px;
+  animation: titleGlitch 3s infinite;
+}
+
+@keyframes titleGlitch {
+  0%, 90%, 100% {
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  }
+  95% {
+    text-shadow: -2px 0 rgba(0, 255, 255, 0.8), 2px 0 rgba(255, 0, 0, 0.8);
+  }
+}
+
+.difficulty-btn {
+  display: block;
+  width: 280px;
+  margin: 18px auto;
+  padding: 18px 36px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Press Start 2P', monospace;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+  clip-path: polygon(
+    0 10px, 10px 10px, 10px 0,
+    calc(100% - 10px) 0, calc(100% - 10px) 10px, 100% 10px,
+    100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%,
+    10px 100%, 10px calc(100% - 10px), 0 calc(100% - 10px)
+  );
+  text-transform: uppercase;
+}
+
+.difficulty-btn:hover {
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.difficulty-btn[data-level="easy"] {
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+  box-shadow: 0 0 20px rgba(132, 250, 176, 0.5);
+}
+
+.difficulty-btn[data-level="easy"]:hover {
+  box-shadow: 0 0 30px rgba(132, 250, 176, 0.8);
+}
+
+.difficulty-btn[data-level="normal"] {
+  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+  box-shadow: 0 0 20px rgba(255, 216, 155, 0.5);
+}
+
+.difficulty-btn[data-level="normal"]:hover {
+  box-shadow: 0 0 30px rgba(255, 216, 155, 0.8);
+}
+
+.difficulty-btn[data-level="hard"] {
+  background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.difficulty-btn[data-level="hard"]:hover {
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+}
+
+.difficulty-btn[data-level="hell"] {
+  background: linear-gradient(135deg, #ff0000 0%, #000000 100%);
+  border: 3px solid #ff0000;
+  animation: hellPulse 2s infinite;
+}
+
+.difficulty-btn[data-level="hell"]:hover {
+  animation: hellPulseHover 1s infinite;
+}
+
+@keyframes hellPulse {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 45px rgba(255, 0, 0, 1);
+  }
+}
+
+@keyframes hellPulseHover {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(255, 0, 0, 1);
+    transform: scale(1.08);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(255, 0, 0, 1);
+    transform: scale(1.12);
+  }
+}
+
+/* ========================================
+   ゲームオーバーパネル - サイバーパンクデザイン
+   ======================================== */
+.yt-shooting-gameover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(40, 0, 0, 0.95) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 10000;
+}
+
+.yt-shooting-gameover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+.gameover-content {
+  text-align: center;
+  padding: 60px 80px;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.98) 0%, rgba(26, 10, 10, 0.98) 100%);
+  border: 4px solid #ff6b6b;
+  box-shadow: 0 0 40px rgba(255, 107, 107, 0.6), inset 0 0 40px rgba(255, 0, 0, 0.1);
+  clip-path: polygon(
+    0 20px, 20px 20px, 20px 0,
+    calc(100% - 20px) 0, calc(100% - 20px) 20px, 100% 20px,
+    100% calc(100% - 20px), calc(100% - 20px) calc(100% - 20px), calc(100% - 20px) 100%,
+    20px 100%, 20px calc(100% - 20px), 0 calc(100% - 20px)
+  );
+}
+
+.gameover-content h1 {
+  color: #ff6b6b;
+  font-size: 36px;
+  font-family: 'Press Start 2P', monospace;
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px rgba(255, 107, 107, 1);
+  animation: gameoverPulse 2s infinite;
+  letter-spacing: 3px;
+}
+
+@keyframes gameoverPulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 30px rgba(255, 107, 107, 1);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 50px rgba(255, 107, 107, 1);
+  }
+}
+
+.final-score {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  font-family: 'Press Start 2P', monospace;
+  margin: 25px 0;
+  letter-spacing: 2px;
+}
+
+.final-score span {
+  color: var(--neon-green);
+  font-size: 28px;
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+  text-shadow: 0 0 20px rgba(0, 255, 0, 1);
+}
+
+.high-score-notice {
+  color: var(--neon-gold);
+  font-size: 16px;
+  font-family: 'Press Start 2P', monospace;
+  font-weight: bold;
+  margin: 20px 0;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 1);
+  animation: recordGlow 1s infinite alternate;
+  letter-spacing: 2px;
+}
+
+@keyframes recordGlow {
+  from {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 1);
+    transform: scale(1);
+  }
+  to {
+    text-shadow: 0 0 40px rgba(255, 215, 0, 1);
+    transform: scale(1.05);
+  }
+}
+
+.gameover-content .yt-shooting-btn {
+  margin: 12px 8px;
+}
+
+/* ========================================
+   ゲームクリアパネル - サイバーパンクデザイン
+   ======================================== */
+.yt-shooting-gameclear {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 40, 0, 0.95) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 10000;
+}
+
+.yt-shooting-gameclear::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+.gameclear-content {
+  text-align: center;
+  padding: 60px 80px;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.98) 0%, rgba(10, 26, 10, 0.98) 100%);
+  border: 4px solid var(--neon-green);
+  box-shadow: 0 0 40px rgba(0, 255, 0, 0.6), inset 0 0 40px rgba(0, 255, 0, 0.1);
+  clip-path: polygon(
+    0 20px, 20px 20px, 20px 0,
+    calc(100% - 20px) 0, calc(100% - 20px) 20px, 100% 20px,
+    100% calc(100% - 20px), calc(100% - 20px) calc(100% - 20px), calc(100% - 20px) 100%,
+    20px 100%, 20px calc(100% - 20px), 0 calc(100% - 20px)
+  );
+}
+
+.gameclear-content h1 {
+  color: var(--neon-green);
+  font-size: 36px;
+  font-family: 'Press Start 2P', monospace;
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px rgba(0, 255, 0, 1);
+  animation: clearPulse 2s infinite;
+  letter-spacing: 3px;
+}
+
+@keyframes clearPulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 30px rgba(0, 255, 0, 1);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 50px rgba(0, 255, 0, 1);
+  }
+}
+
+.gameclear-content .yt-shooting-btn {
+  margin: 12px 8px;
+}
+
+/* ========================================
+   Canvas オーバーレイ
+   ======================================== */
+#yt-shooting-overlay {
+  pointer-events: none;
+}
+
+/* ========================================
+   レスポンシブ調整
+   ======================================== */
+@media (max-width: 768px) {
+  .yt-shooting-controls {
+    bottom: 10px;
+    left: 10px;
+    flex-wrap: wrap;
+  }
+
+  .yt-shooting-btn {
+    padding: 12px 20px;
+    font-size: 10px;
+  }
+
+  .difficulty-content {
+    padding: 30px 40px;
+  }
+
+  .difficulty-content h2 {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+
+  .difficulty-btn {
+    width: 200px;
+    font-size: 10px;
+    padding: 14px 28px;
+    margin: 12px auto;
+  }
+
+  .gameover-content,
+  .gameclear-content {
+    padding: 40px 50px;
+  }
+
+  .gameover-content h1,
+  .gameclear-content h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .final-score {
+    font-size: 12px;
+  }
+
+  .final-score span {
+    font-size: 20px;
+  }
+
+  .high-score-notice {
+    font-size: 11px;
+  }
+
+  .coins-earned {
+    font-size: 14px;
+  }
+}
+
+/* ========================================
+   アニメーション
+   ======================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yt-shooting-controls {
+  animation: fadeIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* ========================================
+   実績通知 - サイバーパンクデザイン
+   ======================================== */
+.achievement-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #000;
+  padding: 20px 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 6px 30px rgba(255, 215, 0, 0.6);
+  transform: translateX(500px);
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  z-index: 10001;
+  border: 3px solid #ffa500;
+  min-width: 320px;
+  max-width: 400px;
+  clip-path: polygon(
+    0 12px, 12px 12px, 12px 0,
+    calc(100% - 12px) 0, calc(100% - 12px) 12px, 100% 12px,
+    100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%,
+    12px 100%, 12px calc(100% - 12px), 0 calc(100% - 12px)
+  );
+}
+
+.achievement-notification.show {
+  transform: translateX(0);
+}
+
+.achievement-icon {
+  font-size: 56px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.achievement-text {
+  flex: 1;
+}
+
+.achievement-title {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #8b4513;
+  margin-bottom: 5px;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.achievement-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #000;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.achievement-desc {
+  font-size: 11px;
+  color: #333;
+  line-height: 1.4;
+  font-family: 'Courier New', monospace;
+}
+
+.achievement-share-btn {
+  background: #1da1f2;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(29, 161, 242, 0.3);
+}
+
+.achievement-share-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(29, 161, 242, 0.5);
+}
+
+.share-btn {
+  background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.share-btn:hover {
+  background: linear-gradient(135deg, #0d8bd9 0%, #0a75bf 100%);
+  border-color: rgba(255, 255, 255, 0.6);
+}
